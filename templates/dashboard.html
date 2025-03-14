@@ -10,7 +10,6 @@
 <body>
     <div class="container mt-5">
         
-        <!-- Hiển thị thông báo -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -40,40 +39,86 @@
 
         <div class="card shadow-sm border-0 rounded p-4 mt-4">
             <h2 class="mb-3">Tạo công việc mới</h2>
-            <form method="POST" action="{{ url_for('dashboard') }}">
-                <div class="mb-3">
-                    <label for="task" class="form-label">Tên công việc</label>
-                    <input type="text" class="form-control" id="task" name="task" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Thêm công việc</button>
+            <form method="POST" action="{{ url_for('add_task') }}">
+                <input type="text" name="name" placeholder="Tên công việc" class="border rounded-lg p-2 w-full mb-2" required>
+                <select name="category" class="border rounded-lg p-2 w-full mb-2" required>
+                    <option value="Công việc cá nhân">Công việc cá nhân</option>
+                    <option value="Công việc nhóm">Công việc nhóm</option>
+                    <option value="Công việc khẩn cấp">Công việc khẩn cấp</option>
+                </select>
+                <select name="status" class="border rounded-lg p-2 w-full mb-2" required>
+                    <option value="Chưa hoàn thành">Chưa hoàn thành</option>
+                    <option value="Đã hoàn thành">Đã hoàn thành</option>
+                </select>
+            
+                <input type="date" name="created_at" class="border rounded-lg p-2 w-full mb-2" required>
+            
+                <input type="datetime-local" name="completed_at" class="border rounded-lg p-2 w-full mb-2">
+            
+                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Thêm</button>
             </form>
-        </div>
+            
+            <script>
+                function validateForm() {
+                    let createdAt = document.getElementById("created_at").value;
+                    let completedAt = document.getElementById("completed_at").value;
+                
+                    if (completedAt) { 
+                        let createdDate = new Date(createdAt);
+                        let completedDate = new Date(completedAt);
+                
+                        if (completedDate < createdDate) {
+                            alert("Thời gian hoàn thành không thể trước thời gian tạo!");
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            </script>
+            <script>
+                function toggleCompletedAtField() {
+                    var status = document.querySelector('select[name="status"]').value;
+                    var completedAtField = document.getElementById('completed_at');
+                    
+                    // Nếu trạng thái là "Chưa hoàn thành", vô hiệu hóa và ẩn trường thời gian hoàn thành
+                    if (status === "Chưa hoàn thành") {
+                        completedAtField.disabled = true;
+                        completedAtField.value = "";  // Đảm bảo trường thời gian hoàn thành không có giá trị khi vô hiệu hóa
+                    } else {
+                        completedAtField.disabled = block;
+                    }
+                }
 
+                // Gọi hàm khi trang được tải để kiểm tra trạng thái ban đầu
+                window.onload = function() {
+                    toggleCompletedAtField();
+                };
+            </script>
         <div class="card shadow-sm border-0 rounded p-4 mt-4">
             <h2 class="mb-3">Danh sách công việc</h2>
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
+                <table class="table">
+                    <thead class="thead-dark">
                         <tr>
                             <th>Công việc</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
                             <th>Thời gian hoàn thành</th>
+                            <th>Phân loại</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for task in tasks %}
                         <tr>
-                            <td>{{ task.name }}</td>
-                            <td>{{ "Hoàn thành" if task.status else "Chưa hoàn thành" }}</td>
-                            <td>{{ task.created }}</td>
-                            <td>{{ task.finished if task.status else "-" }}</td>
+                            <td>{{ task.title }}</td>
+                            <td>{{ "Đã hoàn thành" if task.status == "Đã hoàn thành" else "Chưa hoàn thành" }}</td>
+                            <td>{{ task.created.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ task.finished.strftime('%Y-%m-%d %H:%M') if task.finished else "Chưa hoàn thành" }}</td>
+                            <td>{{ task.category.name if task.category else "Chưa phân loại" }}</td>
+                            <td><button class="btn btn-danger btn-sm delete-task" data-id="{{ task.id }}">Xóa</button></td>
                             <td>
-                                {% if not task.status %}
-                                <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-success btn-sm">Hoàn thành</a>
-                                {% endif %}
-                                <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger btn-sm">Xóa</a>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}

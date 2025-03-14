@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Quản lý Danh Mục Công Việc</h2>
+
+<!-- Form Thêm Danh Mục -->
+<form method="POST">
+    <input type="text" name="name" placeholder="Tên danh mục" required>
+    <button type="submit">Thêm</button>
+</form>
+
+<!-- Danh sách Danh Mục -->
+<ul>
+    {% for category in categories %}
+    <li>
+        {{ category.name }}
+        <form method="POST" action="{{ url_for('delete_category', category_id=category.id) }}" style="display:inline;">
+            <button type="submit" onclick="return confirm('Xóa danh mục này?');">Xóa</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('dashboard') }}">Quay lại</a>
+{% endblock %}

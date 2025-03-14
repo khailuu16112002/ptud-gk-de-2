@@ -1,47 +1,32 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Xử lý chọn tất cả công việc
-    const selectAllCheckbox = document.getElementById("select-all");
-    const checkboxes = document.querySelectorAll(".task-checkbox");
-    const deleteButton = document.getElementById("delete-selected");
-
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener("change", function () {
-            checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
-        });
-    }
-
-    // Xử lý xóa nhiều công việc
-    if (deleteButton) {
-        deleteButton.addEventListener("click", function () {
-            let selectedIds = Array.from(checkboxes)
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => checkbox.dataset.id);
-
-            if (selectedIds.length === 0) {
-                alert("Vui lòng chọn ít nhất một công việc để xóa.");
-                return;
-            }
-
-            if (!confirm("Bạn có chắc chắn muốn xóa các công việc đã chọn?")) return;
-
-            fetch("/delete_tasks", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ task_ids: selectedIds })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error("Lỗi:", error);
-                alert("Đã xảy ra lỗi khi xóa công việc.");
+        // Xử lý xóa công việc
+        const deleteButtons = document.querySelectorAll(".delete-task");
+    
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const taskId = this.dataset.id;
+    
+                if (!confirm("Bạn có chắc chắn muốn xóa công việc này?")) return;
+    
+                fetch("/delete_task", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ task_id: taskId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        location.reload(); // Tải lại trang sau khi xóa thành công
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    alert("Đã xảy ra lỗi khi xóa công việc.");
+                });
             });
         });
-    }
+    
 
     // Xử lý gửi công việc mới
     const taskForm = document.getElementById("taskForm");
