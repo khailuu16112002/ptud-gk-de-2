@@ -8,3 +8,8 @@ pip install flask_bcrypt
 pip install flask_login
 
 pip install flask
+
+
+tài khoản admin: admin@gmail.com
+
+mật khẩu admin: admin123
